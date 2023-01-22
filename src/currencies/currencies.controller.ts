@@ -5,20 +5,19 @@ import {
   Logger,
   Param,
 } from '@nestjs/common';
-
-interface CurrencyDto {
-  isoCode: string;
-  value: number;
-}
+import { CurrenciesService } from './currencies.service';
+import { CurrencyDto } from './dto/currency.dto';
 
 @Controller('currencies')
 export class CurrenciesController {
   private readonly logger = new Logger(CurrenciesController.name);
+
+  constructor(private readonly currenciesService: CurrenciesService) {}
+
   @Get()
   getAllCurrencies(): Array<unknown> {
     this.logger.log('REST request to get all currencies');
-    // TODO need to load the currencies here
-    return [];
+    return this.currenciesService.getAllCurrencies();
   }
 
   /**

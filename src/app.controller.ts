@@ -1,12 +1,9 @@
 import { Controller, Get } from '@nestjs/common';
-import { AppService } from './app.service';
 
 @Controller()
 export class AppController {
-  constructor(private readonly appService: AppService) {}
-
   @Get()
-  getHello(): string {
-    return this.appService.getHello();
+  getInfo(): string {
+    return 'This app is an example, for using and trying out NestJS while giving some use.';
   }
 }
