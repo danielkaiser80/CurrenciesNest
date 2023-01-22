@@ -15,10 +15,6 @@ export class CurrenciesService {
 
   constructor(private http: HttpService) {}
 
-  private currenciesNeedToBeUpdated(): boolean {
-    return this.currencies.length === 0 || this.retrievalDate < DateTime.now();
-  }
-
   async getAllCurrencies() {
     if (this.currenciesNeedToBeUpdated()) {
       this.logger.log('New currencies needed, retrieving...');
@@ -26,6 +22,28 @@ export class CurrenciesService {
     }
 
     return this.currencies;
+  }
+
+  async getCurrency(isoCode: string) {
+    if (isoCode.toUpperCase() === 'EUR') {
+      return { isoCode, value: 1 };
+    }
+
+    if (this.currenciesNeedToBeUpdated()) {
+      this.logger.log('New currencies needed, retrieving...');
+      this.currencies = await lastValueFrom(this.loadCurrenciesFromEcb());
+    }
+
+    return this.currencies.filter(
+      (currencyDto) =>
+        currencyDto.isoCode.localeCompare(isoCode, undefined, {
+          sensitivity: 'accent',
+        }) === 0,
+    )[0];
+  }
+
+  private currenciesNeedToBeUpdated(): boolean {
+    return this.currencies.length === 0 || this.retrievalDate < DateTime.now();
   }
 
   private loadCurrenciesFromEcb(): Observable<Array<CurrencyDto>> {
