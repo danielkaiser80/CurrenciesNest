@@ -15,7 +15,7 @@ export class CurrenciesController {
   constructor(private readonly currenciesService: CurrenciesService) {}
 
   @Get()
-  getAllCurrencies(): Array<unknown> {
+  getAllCurrencies(): Promise<Array<CurrencyDto>> {
     this.logger.log('REST request to get all currencies');
     return this.currenciesService.getAllCurrencies();
   }

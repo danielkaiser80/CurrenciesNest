@@ -1,12 +1,11 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
-import { CurrenciesController } from './currencies/currencies.controller';
-import { CurrenciesService } from './currencies/currencies.service';
 import { ConfigModule } from '@nestjs/config';
+import { CurrenciesModule } from './currencies/currencies.module';
 
 @Module({
-  imports: [ConfigModule.forRoot()],
-  controllers: [AppController, CurrenciesController],
-  providers: [CurrenciesService],
+  imports: [ConfigModule.forRoot(), CurrenciesModule],
+  controllers: [AppController],
+  providers: [],
 })
 export class AppModule {}
