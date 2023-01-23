@@ -1,9 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { CurrencyDto } from './dto/currency.dto';
-import { DateTime } from 'luxon';
 import { HttpService } from '@nestjs/axios';
-import { lastValueFrom, map, Observable } from 'rxjs';
+import { lastValueFrom, map } from 'rxjs';
 import { xml2json } from 'xml-js';
+import { LocalDate } from '@js-joda/core';
 
 @Injectable()
 export class CurrenciesService {
@@ -11,14 +11,14 @@ export class CurrenciesService {
 
   private currencies: Array<CurrencyDto> = [];
 
-  private retrievalDate = DateTime.now();
+  private retrievalDate = LocalDate.now();
 
   constructor(private http: HttpService) {}
 
   async getAllCurrencies() {
     if (this.currenciesNeedToBeUpdated()) {
       this.logger.log('New currencies needed, retrieving...');
-      this.currencies = await lastValueFrom(this.loadCurrenciesFromEcb());
+      await this.loadCurrenciesFromEcb();
     }
 
     return this.currencies;
@@ -31,7 +31,7 @@ export class CurrenciesService {
 
     if (this.currenciesNeedToBeUpdated()) {
       this.logger.log('New currencies needed, retrieving...');
-      this.currencies = await lastValueFrom(this.loadCurrenciesFromEcb());
+      await this.loadCurrenciesFromEcb();
     }
 
     return this.currencies.filter(
@@ -43,11 +43,14 @@ export class CurrenciesService {
   }
 
   private currenciesNeedToBeUpdated(): boolean {
-    return this.currencies.length === 0 || this.retrievalDate < DateTime.now();
+    return (
+      this.currencies.length === 0 ||
+      this.retrievalDate.isBefore(LocalDate.now())
+    );
   }
 
-  private loadCurrenciesFromEcb(): Observable<Array<CurrencyDto>> {
-    return this.http
+  private async loadCurrenciesFromEcb() {
+    const observable = this.http
       .get<string>(
         'https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml',
       )
@@ -75,5 +78,9 @@ export class CurrenciesService {
               })),
         ),
       );
+
+    this.currencies = await lastValueFrom(observable);
+    // should probably store also the date which we log above
+    this.retrievalDate = LocalDate.now();
   }
 }
