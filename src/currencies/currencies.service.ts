@@ -70,12 +70,10 @@ export class CurrenciesService {
         }),
         map(
           (cube: Array<{ _attributes: { currency: string; rate: number } }>) =>
-            cube
-              .map((value) => value['_attributes'])
-              .map(({ currency, rate }) => ({
-                isoCode: currency,
-                value: rate,
-              })),
+            cube.map(({ _attributes: { currency, rate } }) => ({
+              isoCode: currency,
+              value: rate,
+            })),
         ),
       );
 
