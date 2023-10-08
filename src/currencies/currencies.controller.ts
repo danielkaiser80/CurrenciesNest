@@ -29,7 +29,7 @@ export class CurrenciesController {
    */
   @Get('/:symbol')
   async getOneCurrency(@Param('symbol') symbol: string): Promise<CurrencyDto> {
-    if (symbol.length != 3) {
+    if (symbol.length !== 3) {
       this.logger.log(`An ISO code must have three letters: ${symbol}`);
       throw new BadRequestException();
     }
