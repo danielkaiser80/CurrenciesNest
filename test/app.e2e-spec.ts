@@ -23,4 +23,11 @@ describe('AppController (e2e)', () => {
         'This app is an example, for using and trying out NestJS while giving some use.',
       );
   });
+
+  it('/currencies/USDX (GET)', () => {
+    return request(app.getHttpServer())
+      .get('/currencies/USDX')
+      .expect(400)
+      .expect('Invalid ISO code');
+  });
 });

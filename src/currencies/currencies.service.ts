@@ -4,12 +4,14 @@ import { HttpService } from '@nestjs/axios';
 import { lastValueFrom, map } from 'rxjs';
 import { xml2json } from 'xml-js';
 import { LocalDate } from '@js-joda/core';
+import { InvalidISOCodeException } from './exception/invalid-iso-code.exception';
 
 @Injectable()
 export class CurrenciesService {
   private readonly logger = new Logger(CurrenciesService.name);
 
   private currencies: Array<CurrencyDto> = [];
+  private validISOs: Array<string> = [];
 
   private retrievalDate = LocalDate.now();
 
@@ -32,6 +34,11 @@ export class CurrenciesService {
     if (this.currenciesNeedToBeUpdated()) {
       this.logger.log('New currencies needed, retrieving...');
       await this.loadCurrenciesFromEcb();
+    }
+
+    if (!this.validISOs.includes(isoCode)) {
+      const errorMessage = `No value from ECB for: ${isoCode}`;
+      throw new InvalidISOCodeException(errorMessage);
     }
 
     return this.currencies.filter(
@@ -80,5 +87,7 @@ export class CurrenciesService {
     this.currencies = await lastValueFrom(observable);
     // should probably store also the date which we log above
     this.retrievalDate = LocalDate.now();
+    // just the iso codes for faster verification
+    this.validISOs = this.currencies.map(({ isoCode }) => isoCode);
   }
 }
