@@ -10,5 +10,4 @@ const bootstrap = async () => {
   await app.listen(port);
 };
 
-// noinspection JSIgnoredPromiseFromCall
-bootstrap();
+void bootstrap();
